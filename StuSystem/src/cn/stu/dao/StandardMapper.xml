@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.stu.dao.StandardMapper">
+
+
+	<select id="getAllStandardList" resultType="Standard">
+		SELECT *FROM`standard`.`standard` where 1=1
+		<if test="aparam!=null and aparam!=''  ">
+			and zhname like CONCAT('%',#{aparam},'%')
+			or stdNum
+			like CONCAT('%',#{aparam},'%')
+		</if>
+		limit #{from},#{pageSize}
+	</select>
+
+	<select id="getCount" resultType="int">
+		SELECT count(1) FROM`standard`.`standard`
+		where 1=1
+		<if test="aparam!=null and aparam!=''">
+			and zhname like CONCAT('%',#{aparam},'%')
+			or stdNum
+			like CONCAT('%',#{aparam},'%')
+		</if>
+	</select>
+	<insert id="AddStandard" parameterType="Standard">
+		INSERT INTO
+		`standard`.`standard` (`stdNum`,`zhname`,`version`,`keys`,
+		`releaseDate`,`implDate`,`packagePath`)
+		VALUES
+		(#{stdNum},#{zhname},#{version},#{keys},
+		#{releaseDate},#{implDate},#{packagePath})
+	</insert>
+
+	<update id="UpdateStandard" parameterType="Standard">
+		UPDATE `standard`.`standard`
+		<set>
+			<if test="stdNum!=null and stdNum!=''">
+				`stdNum` = #{stdNum},
+			</if>
+
+			<if test="zhname!=null and zhname!=''">
+				`zhname` = #{zhname},
+			</if>
+			<if test="version!=null and version!=''">
+				`version` = #{version},
+			</if>
+			<if test="keys!=null and keys!=''">
+				`keys` = #{keys},
+			</if>
+			<if test="releaseDate!=null ">
+				`releaseDate` = #{releaseDate},
+			</if>
+			<if test="implDate!=null">
+				`implDate` = #{implDate},
+			</if>
+			<if test="packagePath!=null">
+				`packagePath` = #{packagePath}
+			</if>
+		</set>
+		WHERE `id` = #{id}
+	</update>
+
+	<delete id="DeleteStandard">
+		DELETE  FROM `standard`.`standard`
+		WHERE `id` = #{id}
+	</delete>
+	<select id="IsEqual" resultType="Standard">
+	select * from `standard`.`standard` where `stdNum` = #{stdNum}
+	</select>
+	<select id="getStandardById" resultType="Standard"  >
+	select * from `standard`.`standard`  WHERE `id` = #{id}
+	</select>
+	
+</mapper> 
+
+
+
+
+
+
+
+
+

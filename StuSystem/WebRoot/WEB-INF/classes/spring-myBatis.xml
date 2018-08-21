@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:lang="http://www.springframework.org/schema/lang"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-3.2.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+    <!--   1、数据源
+     	   2、sessionfactory
+           3、dao
+           4、service
+           5、事务
+       -->
+      
+   <!--  1、  读取数据库配置文件 -->
+   <context:property-placeholder location="classpath:database.properties"/>
+   
+   <!-- 2、获取数据源（使用dbcp数据源） -->
+   <bean id="dataSource" 
+   class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+   		<property name="driverClassName" value="${driver}"/>
+		<property name="url" value="${url}"/>
+		<property name="username" value="${user}"/>
+		<property name="password" value="${password}"/>
+		<property name="initialSize" value="${initialSize}"/><!-- 第一要创建连接的个数 默认为0 -->
+		<property name="maxActive" value="${maxActive}"/> <!-- 默认8个 -->
+		<property name="maxIdle" value="${maxIdle}"/>
+		<property name="minIdle" value="${minIdle}"/>
+		<property name="maxWait" value="${maxWait}"/>
+		<property name="removeAbandoned" value="${removeAbandoned}"/>
+		<property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}"/>
+   		<!-- sql心跳 -->
+   		<property name="testWhileIdle" value="true"/>
+   		<property name="testOnBorrow" value="false"/>
+   		<property name="testOnReturn" value="false"/>
+   		<property name="validationQuery" value="select 1"/>
+   		<property name="timeBetweenEvictionRunsMillis" value="60000"/>
+   		<property name="numTestsPerEvictionRun" value="${maxActive}"/>
+   </bean>
+   
+      <!--3、 配置SqlSessionFactoryBean  及MyBaties核心映射文件中其他信息-->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	<!-- 引用数据源 -->
+	<property name="dataSource" ref="dataSource"></property>
+	<!-- 没搬来完的还是放在MyBatis核心文件中  -->
+	<property name="configLocation"  value="classpath:MyBatis-config.xml"></property>
+	
+	<property name="typeAliasesPackage" value="cn.stu.pojo"></property>
+	<!-- 配置映射文件 两种方式-->
+	<property name="mapperLocations">
+	<list>
+	<!-- <value>classpath:cn/smbms/dao/user/UserMapper.xml</value> -->
+	<value>classpath:cn/stu/dao/**/*.xml</value>
+	</list>
+	</property>
+	
+	
+	
+	
+	</bean>
+	
+      
+      <!-- 4、定义事务管理器-->
+	<!-- <bean id="txManager"  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	<property name="dataSource" ref="dataSource"/>
+	</bean>
+	<tx:annotation-driven transaction-manager="txManager"/>
+	
+	 配置事务增强
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+	<tx:attributes >
+	<tx:method name="*" propagation="REQUIRED"></tx:method>
+	</tx:attributes>
+	</tx:advice>
+	定义切面
+	<aop:config>
+	<aop:pointcut expression="execution(* cn.smbms.serivce..*.*(..))" id="serviceMethod"/>
+	将事务增强到与切入点组合
+	<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceMethod"/>
+	</aop:config> 
+	
+       -->
+      <!-- 5、dao -->
+      <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+	<property name="basePackage" value="cn.stu.dao"></property>
+	</bean>
+    <!--   6、service -->
+     <context:component-scan base-package="cn.stu.service"/>
+</beans>
